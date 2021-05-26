@@ -1,0 +1,15 @@
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\bin\Debug\EasyHook32.dll
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\bin\Debug\EasyHook32Svc.exe
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\bin\Debug\EasyHook64.dll
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\bin\Debug\EasyHook64Svc.exe
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\bin\Debug\EasyLoad32.dll
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\bin\Debug\EasyLoad64.dll
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\bin\Debug\FileMonitorHook.dll
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\bin\Debug\FileMonitorHook.pdb
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\bin\Debug\EasyHook.dll
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\bin\Debug\EasyHook.xml
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\obj\Debug\FileMonitorHook.csprojAssemblyReference.cache
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\obj\Debug\FileMonitorHook.csproj.CoreCompileInputs.cache
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\obj\Debug\FileMonitorHook.csproj.CopyComplete
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\obj\Debug\FileMonitorHook.dll
+C:\Users\sgtsc\EasyHook-Tutorials\Managed\RemoteFileMonitor\FileMonitorHook\obj\Debug\FileMonitorHook.pdb
