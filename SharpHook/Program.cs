@@ -47,7 +47,9 @@ namespace SharpHook
                 {
                     "MobaXterm",
                     "runas",
-                    "mstsc"
+                    "mstsc",
+                    "cmd"
+                    //"powershell"  - start-process also works enable it after....
                 };
 
                 
