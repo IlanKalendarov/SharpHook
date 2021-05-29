@@ -49,7 +49,6 @@ namespace SharpHook
                     "runas",
                     "mstsc",
                     "cmd",
-                    "explorer"
                     //"powershell"  - start-process also works enable it after....
                 };
 
