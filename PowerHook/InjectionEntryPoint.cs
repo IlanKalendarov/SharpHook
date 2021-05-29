@@ -11,7 +11,7 @@ namespace PowerHook
     public class InjectionEntryPoint : EasyHook.IEntryPoint
     {
 
-
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct UNICODE_STRING
         {
             public ushort Length;
@@ -227,10 +227,10 @@ namespace PowerHook
 
 
         //CMD
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
         delegate bool RtlInitUnicodeStringEx_Delegate(ref UNICODE_STRING DestinationString, [MarshalAs(UnmanagedType.LPWStr)] String SourceString);
 
-        [DllImport("ntdll.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+        [DllImport("ntdll.dll",EntryPoint = "RtlInitUnicodeStringEx", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         static extern bool RtlInitUnicodeStringEx(ref UNICODE_STRING DestinationString, [MarshalAs(UnmanagedType.LPWStr)] String SourceString);
 
         bool RtlInitUnicodeStringEx_Hook(
