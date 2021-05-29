@@ -148,7 +148,7 @@ namespace PowerHook
             CreateProcessWithLogonW.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             createCryptHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             CreateCharUpperBuffA.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
-            //CreateRtlInitUnicodeStringEx.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+            CreateRtlInitUnicodeStringEx.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
            
 
 
@@ -227,8 +227,8 @@ namespace PowerHook
 
                     }
                 }
-            }
-            catch
+           }
+           catch
             {
                 // swallow exceptions so that any issues caused by this code do not crash target process
             }

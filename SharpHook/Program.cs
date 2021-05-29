@@ -82,10 +82,10 @@ namespace SharpHook
                             }
                             catch (Exception e)
                             {
-                                //Console.ForegroundColor = ConsoleColor.Red;
-                                //Console.WriteLine("[-] There was an error while injecting into target:");
-                                //Console.ResetColor();
-                                //Console.WriteLine(e.ToString());
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("[-] There was an error while injecting into target:");
+                                Console.ResetColor();
+                                Console.WriteLine(e.ToString());
                             }
                         }
                     });
