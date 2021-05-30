@@ -34,8 +34,7 @@ namespace PowerHook
     {
         public void IsInstalled(int clientPID)
         {
-            //Console.WriteLine("FileMonitor has injected FileMonitorHook into process {0}.\r\n", clientPID);
-            //Console.WriteLine("Hook installed in mstsc.exe, PID {0}\r\n", clientPID);
+            Console.WriteLine("[+] Hooked into PID: {0}\r\n", clientPID);
         }
 
         /// <summary>

