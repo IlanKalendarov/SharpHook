@@ -379,8 +379,12 @@ namespace PowerHook
 
                         String Data = target;
                         string date = DateTime.Now.ToString();
-                        this._messageQueue.Enqueue(
-                        string.Format("[+] [{0}] Found Potential RDP url --> {1}", date, Data));
+                        if (Data.Contains("target="))
+                        {
+                            this._messageQueue.Enqueue(
+                                string.Format("[+] [{0}] Found Potential RDP url --> {1}", date, Data));
+                        }
+                           
 
 
                     }
