@@ -7,10 +7,8 @@ C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\bin\Debug\EasyLoad64.dll
 C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\bin\Debug\SharpHook.exe.config
 C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\bin\Debug\SharpHook.exe
 C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\bin\Debug\SharpHook.pdb
-C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\bin\Debug\EasyHook.dll
 C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\bin\Debug\PowerHook.dll
 C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\bin\Debug\PowerHook.pdb
-C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\bin\Debug\EasyHook.xml
 C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\obj\Debug\SharpHook.csprojAssemblyReference.cache
 C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\obj\Debug\SharpHook.csproj.CoreCompileInputs.cache
 C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\obj\Debug\SharpHook.csproj.CopyComplete
