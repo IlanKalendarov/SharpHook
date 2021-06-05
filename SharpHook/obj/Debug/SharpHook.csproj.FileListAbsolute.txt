@@ -13,4 +13,3 @@ C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\obj\Debug\SharpHook.csproj.Co
 C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\obj\Debug\SharpHook.csproj.CopyComplete
 C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\obj\Debug\SharpHook.exe
 C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\obj\Debug\SharpHook.pdb
-C:\Users\Ilan\Documents\GitHub\SharpHook\SharpHook\obj\Debug\SharpHook.csprojAssemblyReference.cache

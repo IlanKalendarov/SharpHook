@@ -34,11 +34,12 @@ namespace SharpHook
             string TempFolder = Path.GetTempPath();
 
             //This is were Fody saves it's Dlls. 
-            string path = TempFolder + @"Costura\616D43BD9773438D52580F93687DC6F3\64\powerhook.dll";
+            string[] files = Directory.GetFiles(TempFolder+@"Costura", "powerhook.dll", SearchOption.AllDirectories);
+           
             EasyHook.RemoteHooking.IpcCreateServer<PowerHook.ServerInterface>(ref channelName, System.Runtime.Remoting.WellKnownObjectMode.Singleton);
 
             // Get the full path to the assembly we want to inject into the target process
-            string injectionLibrary = path;
+            string injectionLibrary = files[0];
             while (true)
             {
                 //Reset list of PIDs and get processes

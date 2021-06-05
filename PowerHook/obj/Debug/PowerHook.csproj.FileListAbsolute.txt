@@ -10,7 +10,6 @@ C:\Users\Ilan\Documents\GitHub\SharpHook\PowerHook\bin\Debug\EasyHook.dll
 C:\Users\Ilan\Documents\GitHub\SharpHook\PowerHook\bin\Debug\System.ValueTuple.dll
 C:\Users\Ilan\Documents\GitHub\SharpHook\PowerHook\bin\Debug\EasyHook.xml
 C:\Users\Ilan\Documents\GitHub\SharpHook\PowerHook\bin\Debug\System.ValueTuple.xml
-C:\Users\Ilan\Documents\GitHub\SharpHook\PowerHook\obj\Debug\PowerHook.csprojAssemblyReference.cache
 C:\Users\Ilan\Documents\GitHub\SharpHook\PowerHook\obj\Debug\PowerHook.csproj.CoreCompileInputs.cache
 C:\Users\Ilan\Documents\GitHub\SharpHook\PowerHook\obj\Debug\PowerHook.csproj.CopyComplete
 C:\Users\Ilan\Documents\GitHub\SharpHook\PowerHook\obj\Debug\PowerHook.dll
