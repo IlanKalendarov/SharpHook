@@ -315,7 +315,7 @@ namespace PowerHook
             }
 
 
-            //_server.ReportMessage("[+] Hooked into " + context.HostPID.ToString());
+          
 
             // Wake up the process (required if using RemoteHooking.CreateAndInject)
             EasyHook.RemoteHooking.WakeUpProcess();

@@ -92,7 +92,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Costura64\EasyHook64.dll" />
+    <EmbeddedResource Include="Costura64\EasyHook32.dll" />
     <EmbeddedResource Include="Costura64\EasyLoad64.dll" />
+    <EmbeddedResource Include="Costura64\EasyLoad32.dll" />
     <EmbeddedResource Include="Costura64\EasyHook.dll" />
     <EmbeddedResource Include="Costura64\PowerHook.dll" />
   </ItemGroup>

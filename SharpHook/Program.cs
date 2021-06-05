@@ -52,7 +52,7 @@ namespace SharpHook
                     "runas",
                     "mstsc",
                     //"cmd",
-                    "explorer",
+                    //"explorer",
                     "powershell"
                 };
 
