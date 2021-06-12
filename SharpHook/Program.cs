@@ -204,7 +204,7 @@ namespace SharpHook
             Console.WriteLine("Examples:");
             Console.WriteLine("SharpHook.exe -p=mstsc - This will hook into mstsc and should give you Username, Password and the remote ip");
             Console.WriteLine("SharpHook.exe -p=runas - This will hook into runas and should give you Username, Password and the domain name");
-            Console.WriteLine("SharpHook.exe -p=powershell - This will hook into powershell and should give you output for commands for when the user enters a diffrent credentials");
+            Console.WriteLine("SharpHook.exe -p=powershell - This will hook into powershell and should give you output for commands for when the user enters a different credentials");
             Console.WriteLine("SharpHook.exe -p=MobaXterm - This will hook into MobaXterm and should give you credentials for SSH and RDP logins");
             Console.WriteLine("SharpHook.exe -p=mstsc,runas - This will hook into mstsc and runas as well");
             Console.WriteLine("SharpHook.exe -p=all - This will hook into every supported process");
