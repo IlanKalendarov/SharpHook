@@ -1,0 +1,17 @@
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\bin\Release\EasyHook32.dll
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\bin\Release\EasyHook32Svc.exe
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\bin\Release\EasyHook64.dll
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\bin\Release\EasyHook64Svc.exe
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\bin\Release\EasyLoad32.dll
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\bin\Release\EasyLoad64.dll
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\bin\Release\PowerHook.dll
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\bin\Release\PowerHook.pdb
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\bin\Release\EasyHook.dll
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\bin\Release\System.ValueTuple.dll
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\bin\Release\EasyHook.xml
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\bin\Release\System.ValueTuple.xml
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\obj\Release\PowerHook.csproj.AssemblyReference.cache
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\obj\Release\PowerHook.csproj.CoreCompileInputs.cache
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\obj\Release\PowerHook.csproj.CopyComplete
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\obj\Release\PowerHook.dll
+C:\Users\redteam\Documents\GitHub\SharpHook\PowerHook\obj\Release\PowerHook.pdb
