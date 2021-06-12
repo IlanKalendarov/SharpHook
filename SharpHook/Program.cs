@@ -61,9 +61,11 @@ namespace SharpHook
                     if (ProcessName == "all")
                     {
                         SupportedProcesses.Add("mstsc");
-                        SupportedProcesses.Add("MobaXterm");
+                        //SupportedProcesses.Add("MobaXterm");
                         SupportedProcesses.Add("powershell");
                         SupportedProcesses.Add("runas");
+                        //SupportedProcesses.Add("explorer");
+                        //SupportedProcesses.Add("cmd");
                         //TODO: Add the rest when fixing the bugs
                     }
                     if (ProcessName.Contains(","))
