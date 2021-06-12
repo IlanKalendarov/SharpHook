@@ -16,6 +16,9 @@ In the background it uses the [EasyHook](http://easyhook.github.io/) project, On
 | explorer (UAC Prompt) | `CredUnPackAuthenticationBufferW` | This will hook into explorer and should give you Username, Password and the Domain name from the UAC Prompt | In Progress - UAC says access denied probably integrity levels problems |
 
 
+# Demo
+![](https://github.com/IlanKalendarov/SharpHook/blob/main/Images/HelpScreen.PNG)
+![](https://github.com/IlanKalendarov/SharpHook/blob/main/Images/Demo.gif)
 
 # Contribution
 
