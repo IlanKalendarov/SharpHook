@@ -338,6 +338,7 @@ namespace PowerHook
                     // Send newly monitored file accesses to server
                     if (queued != null && queued.Length > 0)
                     {
+                        
                         _server.ReportMessages(queued);
                     }
                     else

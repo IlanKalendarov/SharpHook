@@ -24,6 +24,8 @@
 // about the project, latest updates and other tutorials.
 
 using System;
+using System.IO;
+
 
 namespace PowerHook
 {
@@ -32,26 +34,36 @@ namespace PowerHook
     /// </summary>
     public class ServerInterface : MarshalByRefObject
     {
+
         public void IsInstalled(int clientPID)
         {
             Console.WriteLine("[+] Hooked into PID: {0}\r\n", clientPID);
         }
 
+
         /// <summary>
-        /// Output the message to the console.
+        /// Output the message to the console as well as a file (depends on the "-f" flag).
         /// </summary>
-        /// <param name="fileNames"></param>
         public void ReportMessages(string[] messages)
         {
             for (int i = 0; i < messages.Length; i++)
             {
                 Console.WriteLine(messages[i]);
+                string Temp = Path.GetTempPath();
+                string filepath = Temp + "filepath.txt";
+                if (File.Exists(filepath))
+                {
+                    WriteToFile(messages[i]);
+                }
             }
         }
 
-        public void ReportMessage(string message)
+        public void WriteToFile(string message)
         {
-            Console.WriteLine(message);
+            string Temp = Path.GetTempPath();
+            string filepath = File.ReadAllText(Temp + "filepath.txt");
+            File.AppendAllText(filepath, message + "\n\r");
+            
         }
 
         /// <summary>
