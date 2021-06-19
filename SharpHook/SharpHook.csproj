@@ -109,12 +109,14 @@
   <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Costura64\EasyHook64.dll" />
-    <EmbeddedResource Include="Costura64\EasyHook32.dll" />
+    <EmbeddedResource Include="Costura32\EasyHook32.dll" />
     <EmbeddedResource Include="Costura64\EasyLoad64.dll" />
-    <EmbeddedResource Include="Costura64\EasyLoad32.dll" />
+    <EmbeddedResource Include="Costura32\EasyLoad32.dll" />
     <EmbeddedResource Include="Costura64\EasyHook.dll" />
+    <EmbeddedResource Include="Costura32\EasyHook.dll" />
     <EmbeddedResource Include="Costura64\PowerHook.dll" />
-    <EmbeddedResource Include="Costura64\EasyHook32Svc.exe" />
+    <EmbeddedResource Include="Costura32\PowerHook.dll" />
+    <EmbeddedResource Include="Costura32\EasyHook32Svc.exe" />
     <EmbeddedResource Include="Costura64\EasyHook64Svc.exe" />
   </ItemGroup>
   <ItemGroup>

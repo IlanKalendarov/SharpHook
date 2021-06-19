@@ -12,7 +12,7 @@ In the background it uses the [EasyHook](http://easyhook.github.io/) project, On
 |         runas         |     `CreateProcessWithLogonW`     | This will hook into runas and should give you Username, Password and the domain name |                             DONE                             |
 |      powershell       |     `CreateProcessWithLogonW`     | This will hook into powershell and should give you output for commands for when the user enters a different credentials |                             DONE                             |
 |          cmd          |     `RtlInitUnicodeStringEx`      | This should hook into cmd and then would be able to filter keywords like: PsExec,password etc.. |              In Progress - Crashes cmd idk why               |
-|       MobaXterm       |         `CharUpperBuffA`          | This will hook into MobaXterm and should give you credentials for SSH and RDP logins | In Progress - Problems with this being a 32bit process and [Fody](https://github.com/Fody/Costura) not working |
+|       MobaXterm       |         `CharUpperBuffA`          | This will hook into MobaXterm and should give you credentials for SSH and RDP logins | In Progress - Problems with this being a 32bit process and [Fody](https://github.com/Fody/Costura) not working. As a workaround you can compile the project as x86 and it'll work just fine) |
 | explorer (UAC Prompt) | `CredUnPackAuthenticationBufferW` | This will hook into explorer and should give you Username, Password and the Domain name from the UAC Prompt | In Progress - UAC says access denied probably integrity levels problems |
 
 
