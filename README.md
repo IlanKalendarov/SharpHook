@@ -17,7 +17,7 @@ In the background it uses the [EasyHook](http://easyhook.github.io/) project, On
 
 
 # Demo
-![](https://github.com/IlanKalendarov/SharpHook/blob/main/Images/HelpScreen.PNG)
+![](https://github.com/IlanKalendarov/SharpHook/blob/main/Images/Helpscreen.PNG)
 ![](https://github.com/IlanKalendarov/SharpHook/blob/main/Images/Demo.gif)
 
 # Contribution
